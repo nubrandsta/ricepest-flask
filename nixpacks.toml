@@ -29,6 +29,9 @@ aptPkgs = [
     "libopenjp2-7-dev"
 ]
 
+# Install pip using Nix package manager
+nixPkgs = ["python3Packages.pip"]
+
 [phases.install]
 # Custom install command to handle torch and ultralytics properly
 cmds = [

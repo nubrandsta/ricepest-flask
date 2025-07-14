@@ -8,8 +8,8 @@ builder = "nixpacks"
 PYTHON_VERSION = "3.11"
 # Minimal system packages - only essential ones
 APT_PACKAGES = "libgl1-mesa-dri libglib2.0-0 libsm6 libxext6 libxrender-dev libgomp1 libfontconfig1 libcairo2 libjpeg-dev libpng-dev"
-# Simplified install command
-NIXPACKS_INSTALL_CMD = "apt-get update && apt-get install -y libgl1-mesa-dri libglib2.0-0 libsm6 libxext6 libxrender-dev libgomp1 libfontconfig1 libcairo2 libjpeg-dev libpng-dev && python -m pip install --upgrade pip setuptools wheel && python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu && python -m pip install ultralytics>=8.0.0 sahi==0.11.14 && python -m pip install -r requirements.txt"
+# Simplified install command for Python packages (system deps handled by nixpacks.toml)
+NIXPACKS_INSTALL_CMD = "python -m pip install --upgrade pip setuptools wheel && python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu && python -m pip install ultralytics>=8.0.0 sahi==0.11.14 && python -m pip install -r requirements.txt"
 # Environment variables for headless operation
 QT_QPA_PLATFORM = "offscreen"
 DISPLAY = ":99"

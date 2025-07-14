@@ -51,13 +51,15 @@ In your Railway dashboard, you can override the build process:
 
 **Full feature build command:**
 ```bash
-apt-get update && apt-get install -y libgl1-mesa-dri libglib2.0-0 libsm6 libxext6 libxrender-dev libgomp1 libgtk-3-0 libgstreamer1.0-0 libgstreamer-plugins-base1.0-0 libavcodec-dev libavformat-dev libswscale-dev libfontconfig1 libcairo2 libgdk-pixbuf2.0-0 libpango-1.0-0 libharfbuzz0b libpangocairo-1.0-0 libatk1.0-0 libcairo-gobject2 libjpeg-dev libpng-dev libtiff-dev libwebp-dev libopenjp2-7-dev && python -m pip install --upgrade pip setuptools wheel && python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu && python -m pip install ultralytics sahi && python -m pip install -r requirements.txt
+python -m pip install --upgrade pip setuptools wheel && python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu && python -m pip install ultralytics sahi && python -m pip install -r requirements.txt
 ```
 
 **Minimal build command** (if above fails):
 ```bash
-apt-get update && apt-get install -y libgl1-mesa-dri libglib2.0-0 libsm6 libxext6 libxrender-dev libgomp1 libfontconfig1 libcairo2 libjpeg-dev libpng-dev && python -m pip install --upgrade pip setuptools wheel && python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu && python -m pip install ultralytics>=8.0.0 sahi==0.11.14 && python -m pip install -r requirements.txt
+python -m pip install --upgrade pip setuptools wheel && python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu && python -m pip install ultralytics>=8.0.0 sahi==0.11.14 && python -m pip install -r requirements.txt
 ```
+
+**Note**: System dependencies are now handled automatically by `nixpacks.toml` configuration.
 
 **Custom Deploy Command:**
 ```bash
@@ -179,11 +181,11 @@ For serverless deployment, consider using:
    - **Reason**: This ensures pip is called through the Python module system
    - **Note**: All configuration files have been updated to use `python -m pip`
 
-3. **Python Pip Module Not Found**
+3. **Python Pip Module Not Found (Nixpacks)**
    - **Problem**: `/root/.nix-profile/bin/python: No module named pip`
-   - **Solution**: Install pip using `python -m ensurepip --upgrade` or download get-pip.py
-   - **Fallback**: `curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && python get-pip.py`
-   - **Note**: All configuration files now include pip installation fallback
+   - **Solution**: Add `nixPkgs = ["python3Packages.pip"]` to `[phases.setup]` in nixpacks.toml
+   - **Cause**: Nix Python environment doesn't include pip by default
+   - **Note**: This installs pip through the Nix package manager before the install phase
 
 4. **Nixpacks Configuration Parse Error**
    - **Problem**: `redefinition of table 'phases.setup'` in nixpacks.toml
