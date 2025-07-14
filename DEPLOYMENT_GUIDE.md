@@ -55,8 +55,8 @@ Railpack is a modern build system with superior Python support compared to Nixpa
 
 #### Configuration Files:
 
-1. **`railpack.toml`** - Modern Railpack configuration (recommended)
-2. **`railway-railpack.toml`** - Railway settings for Railpack builder
+1. **`railpack.toml`** - Modern Railpack configuration
+2. **`railway.toml`** - Railway settings for Railpack builder (active)
 
 ### Option 2: Railway with Nixpacks (Legacy)
 
@@ -64,10 +64,10 @@ Nixpacks configuration for compatibility with older deployments.
 
 #### Configuration Files:
 
-1. **`nixpacks.toml`** - Main configuration for full feature deployment
-2. **`railway.toml`** - Railway-specific settings
-3. **`railway-minimal.toml`** - Fallback configuration with minimal dependencies
-4. **`runtime.txt`** - Python version specification
+1. **`railway-nixpacks-backup.toml`** - Backup of legacy Nixpacks Railway settings
+2. **`runtime.txt`** - Python version specification
+
+**Note**: Legacy Nixpacks files have been removed. Use the backup file if you need to revert to Nixpacks.
 
 ### Option 3: Railway with Custom Build Commands
 
@@ -194,21 +194,20 @@ For serverless deployment, consider using:
 
 ## Troubleshooting
 
-### Migration to Railpack (Recommended)
+### Using Railpack (Current Setup)
 
-If you're experiencing persistent build issues with Nixpacks, consider migrating to Railpack:
+The project is now configured to use Railpack by default:
 
-**Benefits of Railpack:** <mcreference link="https://railpack.com/languages/python" index="0">0</mcreference>
+**Benefits of Current Setup:**
 - Automatic Python environment setup with proper pip integration
 - Built-in support for common Python packages (no manual system dependency management)
 - Faster builds with optimized caching
 - Better error messages and debugging information
 
-**Migration Steps:**
-1. Rename your current `railway.toml` to `railway-nixpacks-backup.toml`
-2. Rename `railway-railpack.toml` to `railway.toml`
-3. Deploy using the new Railpack configuration
-4. Remove old Nixpacks files if deployment succeeds
+**Current Configuration:**
+1. `railway.toml` - Active Railpack configuration
+2. `railpack.toml` - Railpack-specific settings
+3. Legacy Nixpacks files have been removed for simplicity
 
 ### Common Issues (Nixpacks Legacy)
 
