@@ -47,15 +47,29 @@ The application includes comprehensive fallback mechanisms:
 
 In your Railway dashboard, you can override the build process:
 
-**Custom Build Command:**
+#### Updated Custom Build Commands (Ubuntu Noble Compatible):
+
+**Full feature build command:**
 ```bash
-apt-get update && apt-get install -y libgl1-mesa-glx libglib2.0-0 libsm6 libxext6 libxrender-dev libgomp1 && pip install --upgrade pip setuptools wheel && pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu && pip install ultralytics>=8.0.0 sahi==0.11.14 && pip install -r requirements.txt
+apt-get update && apt-get install -y libgl1-mesa-glx libglib2.0-0 libsm6 libxext6 libxrender-dev libgomp1 libgtk-3-0 libgstreamer1.0-0 libgstreamer-plugins-base1.0-0 libavcodec-dev libavformat-dev libswscale-dev libfontconfig1 libcairo2 libgdk-pixbuf2.0-0 libpango-1.0-0 libharfbuzz0b libpangocairo-1.0-0 libatk1.0-0 libcairo-gobject2 libjpeg-dev libpng-dev libtiff-dev libwebp-dev libopenjp2-7-dev && pip install --upgrade pip setuptools wheel && pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu && pip install ultralytics>=8.0.0 sahi==0.11.14 && pip install -r requirements.txt
+```
+
+**Minimal build command** (if above fails):
+```bash
+apt-get update && apt-get install -y libglib2.0-0 libsm6 libxext6 libxrender-dev libgomp1 libfontconfig1 libcairo2 libjpeg-dev libpng-dev && pip install --upgrade pip setuptools wheel && pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu && pip install ultralytics>=8.0.0 sahi==0.11.14 && pip install -r requirements.txt
 ```
 
 **Custom Deploy Command:**
 ```bash
 gunicorn --bind 0.0.0.0:$PORT app:app
 ```
+
+#### Package Compatibility Notes:
+- Ubuntu Noble (24.04) uses different package names for FFmpeg libraries
+- Changed `libavcodec58` → `libavcodec-dev`
+- Changed `libavformat58` → `libavformat-dev` 
+- Changed `libswscale5` → `libswscale-dev`
+- Use `railway-minimal.toml` if you encounter persistent package issues
 
 ### Option 2: Docker Deployment
 
@@ -153,20 +167,32 @@ For serverless deployment, consider using:
 
 ### Common Issues
 
-1. **ultralytics Import Error**
+1. **Package Installation Errors (Ubuntu Noble/24.04)**
+   - **Problem**: `libavcodec58`, `libavformat58`, `libswscale5` not available
+   - **Solution**: Use development packages instead: `libavcodec-dev`, `libavformat-dev`, `libswscale-dev`
+   - **Alternative**: Use `railway-minimal.toml` for basic functionality
+
+2. **ultralytics Import Error**
    - Ensure PyTorch is installed before ultralytics
    - Use CPU-only PyTorch for most cloud deployments
    - Check system dependencies are installed
+   - Verify package versions in build logs
 
-2. **Memory Issues**
+3. **Memory Issues**
    - Use smaller YOLO models (yolov8n.pt instead of yolov8x.pt)
    - Implement model caching
    - Consider serverless cold start times
 
-3. **OpenCV Issues**
+4. **OpenCV Issues**
    - Use opencv-python-headless for server deployments
    - Install required system libraries
    - Set QT_QPA_PLATFORM=offscreen
+
+5. **Railway Build Failures**
+   - Check build logs for specific package errors
+   - Try the minimal configuration: `railway-minimal.toml`
+   - Use custom build commands in Railway dashboard
+   - Verify Ubuntu version compatibility
 
 ### Health Check
 
