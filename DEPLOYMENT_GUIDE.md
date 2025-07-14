@@ -51,12 +51,12 @@ In your Railway dashboard, you can override the build process:
 
 **Full feature build command:**
 ```bash
-apt-get update && apt-get install -y libgl1-mesa-dri libglib2.0-0 libsm6 libxext6 libxrender-dev libgomp1 libgtk-3-0 libgstreamer1.0-0 libgstreamer-plugins-base1.0-0 libavcodec-dev libavformat-dev libswscale-dev libfontconfig1 libcairo2 libgdk-pixbuf2.0-0 libpango-1.0-0 libharfbuzz0b libpangocairo-1.0-0 libatk1.0-0 libcairo-gobject2 libjpeg-dev libpng-dev libtiff-dev libwebp-dev libopenjp2-7-dev && pip install --upgrade pip setuptools wheel && pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu && pip install ultralytics>=8.0.0 sahi==0.11.14 && pip install -r requirements.txt
+apt-get update && apt-get install -y libgl1-mesa-dri libglib2.0-0 libsm6 libxext6 libxrender-dev libgomp1 libgtk-3-0 libgstreamer1.0-0 libgstreamer-plugins-base1.0-0 libavcodec-dev libavformat-dev libswscale-dev libfontconfig1 libcairo2 libgdk-pixbuf2.0-0 libpango-1.0-0 libharfbuzz0b libpangocairo-1.0-0 libatk1.0-0 libcairo-gobject2 libjpeg-dev libpng-dev libtiff-dev libwebp-dev libopenjp2-7-dev && python -m pip install --upgrade pip setuptools wheel && python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu && python -m pip install ultralytics>=8.0.0 sahi==0.11.14 && python -m pip install -r requirements.txt
 ```
 
 **Minimal build command** (if above fails):
 ```bash
-apt-get update && apt-get install -y libgl1-mesa-dri libglib2.0-0 libsm6 libxext6 libxrender-dev libgomp1 libfontconfig1 libcairo2 libjpeg-dev libpng-dev && pip install --upgrade pip setuptools wheel && pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu && pip install ultralytics>=8.0.0 sahi==0.11.14 && pip install -r requirements.txt
+apt-get update && apt-get install -y libgl1-mesa-dri libglib2.0-0 libsm6 libxext6 libxrender-dev libgomp1 libfontconfig1 libcairo2 libjpeg-dev libpng-dev && python -m pip install --upgrade pip setuptools wheel && python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu && python -m pip install ultralytics>=8.0.0 sahi==0.11.14 && python -m pip install -r requirements.txt
 ```
 
 **Custom Deploy Command:**
@@ -173,7 +173,13 @@ For serverless deployment, consider using:
    - **Solution**: Use development packages instead: `libavcodec-dev`, `libavformat-dev`, `libswscale-dev`
    - **Alternative**: Use `railway-minimal.toml` for basic functionality
 
-2. **ultralytics Import Error**
+2. **Pip Command Not Found**
+   - **Problem**: `pip: command not found` during deployment
+   - **Solution**: Use `python -m pip` instead of `pip` directly
+   - **Reason**: This ensures pip is called through the Python module system
+   - **Note**: All configuration files have been updated to use `python -m pip`
+
+3. **ultralytics Import Error**
    - Ensure PyTorch is installed before ultralytics
    - Use CPU-only PyTorch for most cloud deployments
    - Check system dependencies are installed

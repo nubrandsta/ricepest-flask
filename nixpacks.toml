@@ -32,11 +32,11 @@ aptPkgs = [
 [phases.install]
 # Custom install command to handle torch and ultralytics properly
 cmds = [
-    "pip install --upgrade pip setuptools wheel",
-    "pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu",
-    "pip install ultralytics>=8.0.0",
-    "pip install sahi==0.11.14",
-    "pip install -r requirements.txt"
+    "python -m pip install --upgrade pip setuptools wheel",
+    "python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu",
+    "python -m pip install ultralytics>=8.0.0",
+    "python -m pip install sahi==0.11.14",
+    "python -m pip install -r requirements.txt"
 ]
 
 [variables]
