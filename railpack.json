@@ -4,10 +4,22 @@
     "libgl1-mesa-glx",
     "libglib2.0-0"
   ],
+  "deployAptPackages": [
+    "libgl1-mesa-glx",
+    "libglib2.0-0"
+  ],
   "packages": {
     "python": "3.11"
   },
-
+  "steps": {
+    "install": {
+      "commands": [
+        "pip install -r requirements.txt",
+        "ldconfig",
+        "ln -sf /usr/lib/x86_64-linux-gnu/libGL.so.1 /usr/lib/libGL.so.1 || true"
+      ]
+    }
+  },
   "deploy": {
     "startCommand": "gunicorn --bind 0.0.0.0:$PORT app:app",
     "variables": {
