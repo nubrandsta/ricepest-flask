@@ -6,5 +6,9 @@ opencv-python-headless==4.8.1.78
 requests==2.31.0
 gunicorn==21.2.0
 setuptools>=65.0.0
-# Note: torch, torchvision, ultralytics, and sahi are installed via NIXPACKS_INSTALL_CMD
-# to ensure proper dependency resolution and avoid conflicts
+
+# AI/ML Libraries
+torch>=2.0.0
+torchvision>=0.15.0
+ultralytics>=8.0.0
+sahi>=0.11.0

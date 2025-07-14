@@ -36,12 +36,10 @@ system_packages = [
 ]
 
 [install]
-# Custom install commands for PyTorch and ultralytics
+# Standard pip install from requirements.txt
+# Railpack automatically handles Python package dependencies
 commands = [
     "pip install --upgrade pip setuptools wheel",
-    "pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu",
-    "pip install ultralytics>=8.0.0",
-    "pip install sahi==0.11.14",
     "pip install -r requirements.txt"
 ]
 
