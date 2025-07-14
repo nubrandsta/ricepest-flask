@@ -28,7 +28,6 @@ aptPkgs = [
     "libwebp-dev",
     "libopenjp2-7-dev"
 ]
-[phases.setup]
 # Ensure Python and pip are available
 cmds = [
     "python -m ensurepip --upgrade || curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && python get-pip.py"

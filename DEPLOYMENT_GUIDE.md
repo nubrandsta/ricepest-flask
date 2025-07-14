@@ -185,7 +185,13 @@ For serverless deployment, consider using:
    - **Fallback**: `curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && python get-pip.py`
    - **Note**: All configuration files now include pip installation fallback
 
-4. **ultralytics Import Error**
+4. **Nixpacks Configuration Parse Error**
+   - **Problem**: `redefinition of table 'phases.setup'` in nixpacks.toml
+   - **Solution**: Merge duplicate [phases.setup] sections into a single section
+   - **Cause**: Multiple [phases.setup] headers in the same configuration file
+   - **Fix**: Combine aptPkgs and cmds under one [phases.setup] section
+
+5. **ultralytics Import Error**
    - Ensure PyTorch is installed before ultralytics
    - Use CPU-only PyTorch for most cloud deployments
    - Check system dependencies are installed
