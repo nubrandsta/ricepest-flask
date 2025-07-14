@@ -29,8 +29,11 @@ aptPkgs = [
     "libopenjp2-7-dev"
 ]
 
-# Install Python and pip using Nix package manager
-nixPkgs = ["python3", "python3Packages.pip"]
+# Install Python with pip included
+nixPkgs = ["python3Full"]
+
+# Ensure pip is available
+cmds = ["python -m ensurepip --upgrade || curl -sS https://bootstrap.pypa.io/get-pip.py | python"]
 
 [phases.install]
 # Custom install command to handle torch and ultralytics properly
