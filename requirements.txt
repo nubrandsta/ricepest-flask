@@ -1,4 +1,4 @@
-Flask==3.0.0
+Flask
 Flask-CORS==4.0.0
 ultralytics>=8.0.0
 sahi==0.11.14
