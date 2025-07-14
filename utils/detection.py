@@ -203,7 +203,7 @@ class YOLODetector:
                 self.sahi_model = AutoDetectionModel.from_pretrained(
                     model_type='yolov8',  # SAHI uses yolov8 type for YOLOv11 compatibility
                     model_path=self.model_path,
-                    confidence_threshold=0.3,
+                    confidence_threshold=0.4,  # Default confidence threshold
                     device=device
                 )
             else:
@@ -219,7 +219,7 @@ class YOLODetector:
             print(f"Error loading model: {e}")
             raise e
     
-    def detect(self, image_path, use_sahi=False, sahi_config=None, use_two_stage=True):
+    def detect(self, image_path, use_sahi=False, sahi_config=None, use_two_stage=True, confidence_threshold=0.4):
         """
         Run detection on image with optional SAHI slicing and two-stage filtering
         
@@ -228,6 +228,7 @@ class YOLODetector:
             use_sahi (bool): Whether to use SAHI for detection
             sahi_config (dict): SAHI configuration parameters
             use_two_stage (bool): Whether to use two-stage detection with nonpest filtering
+            confidence_threshold (float): Confidence threshold for detections (default: 0.4)
             
         Returns:
             dict: Detection results with bounding boxes, confidence scores, and metadata
@@ -250,9 +251,9 @@ class YOLODetector:
             use_sahi = False
         
         if use_sahi:
-            return self._detect_with_sahi(image_path, sahi_config, start_time, use_two_stage)
+            return self._detect_with_sahi(image_path, sahi_config, start_time, use_two_stage, confidence_threshold)
         else:
-            return self._detect_standard(image_path, start_time, use_two_stage)
+            return self._detect_standard(image_path, start_time, use_two_stage, confidence_threshold)
     
     def _detect_nonpest(self, image_path):
         """
@@ -309,7 +310,7 @@ class YOLODetector:
             print(f"Error running nonpest detection: {e}")
             return []
     
-    def _detect_standard(self, image_path, start_time, use_two_stage=True):
+    def _detect_standard(self, image_path, start_time, use_two_stage=True, confidence_threshold=0.4):
         """
         Standard YOLOv11 detection without slicing, with optional two-stage filtering
         """
@@ -329,8 +330,8 @@ class YOLODetector:
             nonpest_detections = self._detect_nonpest(image_path)
         
         # Stage 2: Run main pest detection
-        print("Running Stage 2: Pest detection...")
-        results = self.model(image_path, conf=0.3)
+        print(f"Running Stage 2: Pest detection with confidence threshold {confidence_threshold}...")
+        results = self.model(image_path, conf=confidence_threshold)
         
         # Process pest detection results
         pest_detections = []
@@ -383,7 +384,7 @@ class YOLODetector:
             'method': 'standard_two_stage' if use_two_stage else 'standard'
         }
     
-    def _detect_with_sahi(self, image_path, sahi_config, start_time, use_two_stage=True):
+    def _detect_with_sahi(self, image_path, sahi_config, start_time, use_two_stage=True, confidence_threshold=0.4):
         """
         SAHI-based detection with image slicing and optional two-stage filtering
         """
@@ -417,7 +418,10 @@ class YOLODetector:
             nonpest_detections = self._detect_nonpest(image_path)
         
         # Stage 2: Run main pest detection with SAHI
-        print("Running Stage 2: SAHI pest detection...")
+        print(f"Running Stage 2: SAHI pest detection with confidence threshold {confidence_threshold}...")
+        
+        # Update SAHI model confidence threshold
+        self.sahi_model.confidence_threshold = confidence_threshold
         
         # Load image
         image = read_image(image_path)

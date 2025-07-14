@@ -36,6 +36,14 @@ class RicePestDetector {
             });
         }
         
+        const confidenceThreshold = document.getElementById('confidenceThreshold');
+        const confidenceValue = document.getElementById('confidenceValue');
+        if (confidenceThreshold && confidenceValue) {
+            confidenceThreshold.addEventListener('input', (e) => {
+                confidenceValue.textContent = e.target.value;
+            });
+        }
+        
         const nmsThreshold = document.getElementById('nmsThreshold');
         const nmsValue = document.getElementById('nmsValue');
         if (nmsThreshold && nmsValue) {
@@ -85,6 +93,10 @@ class RicePestDetector {
                 image: this.currentImage,
                 use_two_stage: twoStageToggle ? twoStageToggle.checked : false
             };
+            
+            // Add confidence threshold to payload
+            const confidenceThresholdEl = document.getElementById('confidenceThreshold');
+            payload.confidence_threshold = confidenceThresholdEl ? parseFloat(confidenceThresholdEl.value) : 0.4;
             
             if (useSahi) {
                 const sliceSizeEl = document.getElementById('sliceSize');

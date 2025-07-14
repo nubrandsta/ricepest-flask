@@ -57,8 +57,11 @@ def detect_image():
         # Get two-stage detection parameter (default: True)
         use_two_stage = data.get('use_two_stage', True)
         
+        # Get confidence threshold (default: 0.4)
+        confidence_threshold = data.get('confidence_threshold', 0.4)
+        
         # Run standard detection
-        results = detector.detect(temp_path, use_sahi=False, use_two_stage=use_two_stage)
+        results = detector.detect(temp_path, use_sahi=False, use_two_stage=use_two_stage, confidence_threshold=confidence_threshold)
         
         # Cleanup
         os.remove(temp_path)
@@ -107,8 +110,11 @@ def detect_with_sahi():
         sahi_config = data.get('sahi_config', {})
         use_two_stage = data.get('use_two_stage', True)
         
+        # Get confidence threshold (default: 0.4)
+        confidence_threshold = data.get('confidence_threshold', 0.4)
+        
         # Run SAHI detection
-        results = detector.detect(temp_path, use_sahi=True, sahi_config=sahi_config, use_two_stage=use_two_stage)
+        results = detector.detect(temp_path, use_sahi=True, sahi_config=sahi_config, use_two_stage=use_two_stage, confidence_threshold=confidence_threshold)
         
         # Cleanup
         os.remove(temp_path)
