@@ -4,9 +4,10 @@ ultralytics>=8.0.0
 sahi==0.11.14
 Pillow==10.1.0
 numpy>=1.25.0
-opencv-python==4.8.1.78
-torch>=2.0.0
-torchvision==0.16.0
+opencv-python-headless==4.8.1.78
+--index-url https://download.pytorch.org/whl/cpu
+torch
+torchvision
 requests==2.31.0
 gunicorn==21.2.0
 setuptools>=65.0.0
