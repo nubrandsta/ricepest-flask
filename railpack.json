@@ -1,41 +1,13 @@
 {
   "$schema": "https://schema.railpack.com",
   "buildAptPackages": [
-    "python3-dev",
-    "python3-pip", 
-    "build-essential",
-    "libgl1-mesa-dev",
-    "libglib2.0-dev",
-    "libegl1-mesa-dev",
-    "libglu1-mesa-dev",
-    "mesa-common-dev",
-    "libglfw3-dev",
-    "libxrender-dev",
-    "libavcodec-dev",
-    "libavformat-dev",
-    "libswscale-dev",
-    "libjpeg-dev",
-    "libpng-dev",
-    "libtiff-dev",
-    "libwebp-dev",
-    "libopenjp2-7-dev"
+    "libgl1-mesa-glx",
+    "libglib2.0-0"
   ],
   "packages": {
     "python": "3.11"
   },
-  "steps": {
-    "install": {
-      "inputs": [
-        {
-          "local": true,
-          "include": ["requirements.txt"]
-        }
-      ],
-      "commands": [
-        "pip install -r requirements.txt"
-      ]
-    }
-  },
+
   "deploy": {
     "startCommand": "gunicorn --bind 0.0.0.0:$PORT app:app",
     "variables": {
