@@ -182,14 +182,27 @@ class RicePestDetector {
                 <p><strong>Metode:</strong> ${method.toUpperCase()}</p>
                 <p><strong>Waktu Proses:</strong> ${processing_time.toFixed(2)}s</p>
                 <p><strong>Total Deteksi:</strong> ${detections.length}</p>
-                <p><strong>Two-Stage Detection:</strong> ${two_stage_enabled ? 'Aktif' : 'Nonaktif'}</p>
-                ${two_stage_enabled ? `
-                    <p><strong>SO:</strong> ${soCount}</p>
-                    <p><strong>Lain:</strong> ${osCount}</p>
-                ` : `
-                    <p><strong>SO:</strong> ${soCount}</p>
-                    <p><strong>Lain:</strong> ${osCount}</p>
-                `}
+                ${two_stage_enabled ? '<p><strong>Two-Stage Detection:</strong> Aktif</p>' : ''}
+        `;
+        
+        if (two_stage_enabled) {
+            // When two-stage is enabled, show pest counts and nonpest counts as 'lain'
+            const pestCount = pest_detections ? pest_detections.length : (soCount + osCount);
+            const nonpestCount = nonpest_detections ? nonpest_detections.length : 0;
+            info += `
+                <p><strong>SO:</strong> ${soCount}</p>
+                <p><strong>OS:</strong> ${osCount}</p>
+                <p><strong>Lain:</strong> ${nonpestCount}</p>
+            `;
+        } else {
+            // When two-stage is disabled, only show SO and OS counts
+            info += `
+                <p><strong>SO:</strong> ${soCount}</p>
+                <p><strong>OS:</strong> ${osCount}</p>
+            `;
+        }
+        
+        info += `
                 <p><strong>Ukuran Gambar:</strong> ${image_size[0]}×${image_size[1]}px</p>
                 ${slice_count ? `<p><strong>Slices:</strong> ${slice_count}</p>` : ''}
             </div>
