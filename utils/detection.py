@@ -153,7 +153,7 @@ def apply_nms(detections, iou_threshold=0.5):
     return filtered_detections
 
 class YOLODetector:
-    def __init__(self, model_path='model/yolov11s.pt', nonpest_model_path='model/nonpest.pt'):
+    def __init__(self, model_path='model/best.pt', nonpest_model_path='model/nonpest.pt'):
         """
         Initialize YOLOv11 detector with SAHI support and two-stage detection
         
