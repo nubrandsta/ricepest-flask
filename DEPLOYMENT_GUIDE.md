@@ -181,11 +181,11 @@ For serverless deployment, consider using:
    - **Reason**: This ensures pip is called through the Python module system
    - **Note**: All configuration files have been updated to use `python -m pip`
 
-3. **Python Pip Module Not Found (Nixpacks)**
-   - **Problem**: `/root/.nix-profile/bin/python: No module named pip`
-   - **Solution**: Add `nixPkgs = ["python3Packages.pip"]` to `[phases.setup]` in nixpacks.toml
-   - **Cause**: Nix Python environment doesn't include pip by default
-   - **Note**: This installs pip through the Nix package manager before the install phase
+3. **Python Command Not Found (Nixpacks)**
+   - **Problem**: `/bin/bash: line 1: python: command not found` or `No module named pip`
+   - **Solution**: Add `nixPkgs = ["python3", "python3Packages.pip"]` to `[phases.setup]` in nixpacks.toml
+   - **Cause**: Nix environment requires explicit installation of Python and pip
+   - **Note**: Both Python and pip must be installed through Nix package manager
 
 4. **Nixpacks Configuration Parse Error**
    - **Problem**: `redefinition of table 'phases.setup'` in nixpacks.toml
