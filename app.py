@@ -12,8 +12,14 @@ CORS(app)
 
 # Initialize detector (loads once at startup)
 try:
-    detector = YOLODetector(model_path='model/yolov11s.pt')
+    # Initialize with main pest detection model and optional nonpest model
+    nonpest_model_path = 'model/nonpest.pt'  # Path to your nonpest detection model
+    detector = YOLODetector(
+        model_path='model/yolov11s.pt',
+        nonpest_model_path=nonpest_model_path if os.path.exists(nonpest_model_path) else None
+    )
     detector_available = detector.available
+    print(f"Detector initialized. Two-stage detection available: {detector.nonpest_model is not None}")
 except Exception as e:
     print(f"Failed to initialize YOLODetector: {e}")
     detector = None
@@ -48,17 +54,23 @@ def detect_image():
         os.makedirs('static/uploads', exist_ok=True)
         image.save(temp_path)
         
+        # Get two-stage detection parameter (default: True)
+        use_two_stage = data.get('use_two_stage', True)
+        
         # Run standard detection
-        results = detector.detect(temp_path, use_sahi=False)
+        results = detector.detect(temp_path, use_sahi=False, use_two_stage=use_two_stage)
         
         # Cleanup
         os.remove(temp_path)
         
         return jsonify({
             'detections': results['detections'],
+            'pest_detections': results.get('pest_detections', []),
+            'nonpest_detections': results.get('nonpest_detections', []),
             'processing_time': results['processing_time'],
             'image_size': results['image_size'],
             'method': results.get('method', 'standard'),
+            'two_stage_enabled': use_two_stage and detector.nonpest_model is not None,
             'error': results.get('error')
         })
         
@@ -91,21 +103,25 @@ def detect_with_sahi():
         os.makedirs('static/uploads', exist_ok=True)
         image.save(temp_path)
         
-        # Get SAHI config
+        # Get SAHI config and two-stage detection parameter
         sahi_config = data.get('sahi_config', {})
+        use_two_stage = data.get('use_two_stage', True)
         
         # Run SAHI detection
-        results = detector.detect(temp_path, use_sahi=True, sahi_config=sahi_config)
+        results = detector.detect(temp_path, use_sahi=True, sahi_config=sahi_config, use_two_stage=use_two_stage)
         
         # Cleanup
         os.remove(temp_path)
         
         return jsonify({
             'detections': results['detections'],
+            'pest_detections': results.get('pest_detections', []),
+            'nonpest_detections': results.get('nonpest_detections', []),
             'processing_time': results['processing_time'],
             'image_size': results['image_size'],
             'slice_count': results.get('slice_count', 0),
             'method': results.get('method', 'sahi'),
+            'two_stage_enabled': use_two_stage and detector.nonpest_model is not None,
             'error': results.get('error')
         })
         
@@ -124,6 +140,8 @@ def health_check():
         'status': 'healthy' if detector_available else 'degraded',
         'detector_available': detector_available,
         'model_loaded': detector.model is not None if detector else False,
+        'nonpest_model_loaded': detector.nonpest_model is not None if detector else False,
+        'two_stage_available': detector.nonpest_model is not None if detector else False,
         'dependencies': {
             'ultralytics': ULTRALYTICS_AVAILABLE,
             'sahi': SAHI_AVAILABLE,

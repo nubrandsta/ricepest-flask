@@ -5,6 +5,8 @@ class RicePestDetector {
         this.resultCanvas = document.getElementById('resultCanvas');
         this.detectBtn = document.getElementById('detectBtn');
         this.detectSahiBtn = document.getElementById('detectSahiBtn');
+        this.sahiSettingsBtn = document.getElementById('sahiSettingsBtn');
+        this.sahiConfig = document.getElementById('sahiConfig');
         this.detectionInfo = document.getElementById('detectionInfo');
         
         this.currentImage = null;
@@ -15,6 +17,7 @@ class RicePestDetector {
         this.imageInput.addEventListener('change', (e) => this.handleImageUpload(e));
         this.detectBtn.addEventListener('click', () => this.runDetection(false));
         this.detectSahiBtn.addEventListener('click', () => this.runDetection(true));
+        this.sahiSettingsBtn.addEventListener('click', () => this.toggleSahiSettings());
         
         // SAHI config sliders with null checks
         const sliceSize = document.getElementById('sliceSize');
@@ -77,8 +80,10 @@ class RicePestDetector {
         btn.disabled = true;
         
         try {
+            const twoStageToggle = document.getElementById('twoStageToggle');
             const payload = {
-                image: this.currentImage
+                image: this.currentImage,
+                use_two_stage: twoStageToggle ? twoStageToggle.checked : false
             };
             
             if (useSahi) {
@@ -87,8 +92,8 @@ class RicePestDetector {
                 const nmsThresholdEl = document.getElementById('nmsThreshold');
                 
                 payload.sahi_config = {
-                    slice_height: sliceSizeEl ? parseInt(sliceSizeEl.value) : 640,
-                    slice_width: sliceSizeEl ? parseInt(sliceSizeEl.value) : 640,
+                    slice_height: sliceSizeEl ? parseInt(sliceSizeEl.value) : 320,
+                    slice_width: sliceSizeEl ? parseInt(sliceSizeEl.value) : 320,
                     overlap_height_ratio: overlapEl ? parseInt(overlapEl.value) / 100 : 0.2,
                     overlap_width_ratio: overlapEl ? parseInt(overlapEl.value) / 100 : 0.2,
                     nms_threshold: nmsThresholdEl ? parseFloat(nmsThresholdEl.value) : 0.5
@@ -160,35 +165,35 @@ class RicePestDetector {
     }
     
     showDetectionInfo(result) {
-        const { detections, processing_time, image_size, method, slice_count } = result;
+        const { detections, processing_time, image_size, method, slice_count, two_stage_enabled, pest_detections, nonpest_detections } = result;
+        
+        // Count occurrences of each class
+        const classCounts = {};
+        detections.forEach(det => {
+            classCounts[det.class] = (classCounts[det.class] || 0) + 1;
+        });
+        
+        const soCount = classCounts['SO'] || 0;
+        const osCount = classCounts['OS'] || 0;
         
         let info = `
             <div class="detection-stats">
-                <h4>Detection Results</h4>
-                <p><strong>Method:</strong> ${method.toUpperCase()}</p>
-                <p><strong>Detections:</strong> ${detections.length}</p>
-                <p><strong>Processing Time:</strong> ${processing_time.toFixed(2)}s</p>
-                <p><strong>Image Size:</strong> ${image_size[0]}×${image_size[1]}px</p>
+                <h4>Jumlah Deteksi</h4>
+                <p><strong>Metode:</strong> ${method.toUpperCase()}</p>
+                <p><strong>Waktu Proses:</strong> ${processing_time.toFixed(2)}s</p>
+                <p><strong>Total Deteksi:</strong> ${detections.length}</p>
+                <p><strong>Two-Stage Detection:</strong> ${two_stage_enabled ? 'Aktif' : 'Nonaktif'}</p>
+                ${two_stage_enabled ? `
+                    <p><strong>SO:</strong> ${soCount}</p>
+                    <p><strong>Lain:</strong> ${osCount}</p>
+                ` : `
+                    <p><strong>SO:</strong> ${soCount}</p>
+                    <p><strong>Lain:</strong> ${osCount}</p>
+                `}
+                <p><strong>Ukuran Gambar:</strong> ${image_size[0]}×${image_size[1]}px</p>
                 ${slice_count ? `<p><strong>Slices:</strong> ${slice_count}</p>` : ''}
             </div>
         `;
-        
-        if (detections.length > 0) {
-            // Count occurrences of each class
-            const classCounts = {};
-            detections.forEach(det => {
-                classCounts[det.class] = (classCounts[det.class] || 0) + 1;
-            });
-            
-            info += '<div class="detection-list"><h4>Detection Summary:</h4>';
-            if (classCounts['SO']) {
-                info += `<p class="class-count">Detected SO: ${classCounts['SO']}</p>`;
-            }
-            if (classCounts['OS']) {
-                info += `<p class="class-count">Detected OS: ${classCounts['OS']}</p>`;
-            }
-            info += '</div>';
-        }
         
         this.detectionInfo.innerHTML = info;
     }
@@ -197,6 +202,12 @@ class RicePestDetector {
         const ctx = this.resultCanvas.getContext('2d');
         ctx.clearRect(0, 0, this.resultCanvas.width, this.resultCanvas.height);
         this.detectionInfo.innerHTML = '';
+    }
+    
+    toggleSahiSettings() {
+        const isHidden = this.sahiConfig.style.display === 'none';
+        this.sahiConfig.style.display = isHidden ? 'block' : 'none';
+        this.sahiSettingsBtn.textContent = isHidden ? '✕' : '⚙️';
     }
 }
 

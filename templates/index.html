@@ -9,49 +9,63 @@
 <body>
     <div class="container">
         <header>
-            <h1>🌾 Rice Pest Detector</h1>
-            <p>Powered by Ultralytics YOLO11 + SAHI</p>
+            <h1> Deteksi Hama Beras</h1>
+            <p>Dengan YOLOv11s dan SAHI</p>
         </header>
         
         <main>
             <div class="upload-section">
                 <input type="file" id="imageInput" accept="image/*" style="display: none;">
                 <button onclick="document.getElementById('imageInput').click()" class="upload-btn">
-                    📷 Upload Image
+                    Upload Gambar
                 </button>
             </div>
             
             <div class="image-display">
                 <div class="image-container">
-                    <h3>Original Image</h3>
+                    <h3>Gambar Asli</h3>
                     <canvas id="originalCanvas"></canvas>
                 </div>
                 <div class="image-container">
-                    <h3>Detection Results</h3>
+                    <h3>Hasil Deteksi</h3>
                     <canvas id="resultCanvas"></canvas>
                 </div>
             </div>
             
             <div class="controls">
-                <div class="detection-controls">
-                    <button id="detectBtn" class="detect-btn" disabled>🔍 Detect (Standard)</button>
-                    <button id="detectSahiBtn" class="detect-btn sahi" disabled>🔬 Detect with SAHI</button>
+                <div class="detection-buttons">
+                    <button id="detectBtn" class="detect-btn" disabled>🔍 Deteksi (YOLOv11s)</button>
+                    <button id="detectSahiBtn" class="detect-btn sahi" disabled>🔬 Deteksi (YOLOv11s + SAHI)</button>
                 </div>
                 
-                <div class="sahi-config">
-                    <h3>SAHI Configuration</h3>
+                <div class="settings-row">
+                    <div class="spacer"></div>
+                    <div class="spacer"></div>
+                    <button id="sahiSettingsBtn" class="settings-icon-btn">⚙️</button>
+                </div>
+                
+                <div class="sahi-config" id="sahiConfig" style="display: none;">
+                    <h3>Pengaturan</h3>
+                    
                     <div class="config-group">
-                        <label>Slice Size: <span id="sliceSizeValue">640</span>px</label>
-                        <input type="range" id="sliceSize" min="320" max="1280" step="64" value="640">
+                        <label>
+                            <input type="checkbox" id="twoStageToggle">
+                            Two-Stage Detection
+                        </label>
+                    </div>
+                    
+                    <div class="config-group">
+                        <label>Ukuran Slice: <span id="sliceSizeValue">320</span>px</label>
+                        <input type="range" id="sliceSize" min="320" max="1280" step="64" value="320">
                     </div>
                     <div class="config-group">
-                        <label>Overlap Ratio: <span id="overlapValue">20</span>%</label>
+                        <label>Rasio Overlap: <span id="overlapValue">20</span>%</label>
                         <input type="range" id="overlap" min="10" max="50" step="5" value="20">
                     </div>
                     <div class="config-group">
                         <label for="nmsThreshold">NMS Threshold: <span id="nmsValue">0.3</span></label>
                     <input type="range" id="nmsThreshold" min="0.1" max="0.9" step="0.1" value="0.3">
-                    <small>Lower values = more aggressive overlap removal</small>
+                    <small>Nilai lebih rendah = penghapusan overlap lebih agresif</small>
                     </div>
                 </div>
                 
