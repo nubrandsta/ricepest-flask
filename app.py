@@ -11,7 +11,13 @@ app = Flask(__name__)
 CORS(app)
 
 # Initialize detector (loads once at startup)
-detector = YOLODetector(model_path='model/yolov11s.pt')
+try:
+    detector = YOLODetector(model_path='model/yolov11s.pt')
+    detector_available = detector.available
+except Exception as e:
+    print(f"Failed to initialize YOLODetector: {e}")
+    detector = None
+    detector_available = False
 
 @app.route('/')
 def index():
@@ -20,6 +26,16 @@ def index():
 @app.route('/api/detect', methods=['POST'])
 def detect_image():
     try:
+        # Check if detector is available
+        if not detector_available:
+            return jsonify({
+                'error': 'YOLO detector not available due to missing dependencies (ultralytics, torch, etc.)',
+                'detections': [],
+                'processing_time': 0,
+                'image_size': [0, 0],
+                'method': 'unavailable'
+            }), 503
+        
         data = request.get_json()
         
         # Decode base64 image
@@ -42,7 +58,8 @@ def detect_image():
             'detections': results['detections'],
             'processing_time': results['processing_time'],
             'image_size': results['image_size'],
-            'method': 'standard'
+            'method': results.get('method', 'standard'),
+            'error': results.get('error')
         })
         
     except Exception as e:
@@ -51,6 +68,17 @@ def detect_image():
 @app.route('/api/detect-sahi', methods=['POST'])
 def detect_with_sahi():
     try:
+        # Check if detector is available
+        if not detector_available:
+            return jsonify({
+                'error': 'YOLO detector not available due to missing dependencies (ultralytics, torch, sahi, etc.)',
+                'detections': [],
+                'processing_time': 0,
+                'image_size': [0, 0],
+                'slice_count': 0,
+                'method': 'unavailable'
+            }), 503
+        
         data = request.get_json()
         
         # Decode base64 image
@@ -77,7 +105,8 @@ def detect_with_sahi():
             'processing_time': results['processing_time'],
             'image_size': results['image_size'],
             'slice_count': results.get('slice_count', 0),
-            'method': 'sahi'
+            'method': results.get('method', 'sahi'),
+            'error': results.get('error')
         })
         
     except Exception as e:
@@ -85,11 +114,34 @@ def detect_with_sahi():
 
 @app.route('/api/health')
 def health_check():
-    return jsonify({
-        'status': 'healthy',
-        'model_loaded': detector.model is not None,
-        'ultralytics_version': detector.get_version()
-    })
+    # Check dependency availability
+    try:
+        from utils.detection import ULTRALYTICS_AVAILABLE, SAHI_AVAILABLE, TORCH_AVAILABLE, CV2_AVAILABLE
+    except ImportError:
+        ULTRALYTICS_AVAILABLE = SAHI_AVAILABLE = TORCH_AVAILABLE = CV2_AVAILABLE = False
+    
+    health_status = {
+        'status': 'healthy' if detector_available else 'degraded',
+        'detector_available': detector_available,
+        'model_loaded': detector.model is not None if detector else False,
+        'dependencies': {
+            'ultralytics': ULTRALYTICS_AVAILABLE,
+            'sahi': SAHI_AVAILABLE,
+            'torch': TORCH_AVAILABLE,
+            'opencv': CV2_AVAILABLE
+        }
+    }
+    
+    # Add version info if available
+    if detector_available and detector:
+        try:
+            health_status['ultralytics_version'] = detector.get_version()
+            health_status['model_info'] = detector.get_model_info()
+        except:
+            health_status['ultralytics_version'] = 'Unknown'
+            health_status['model_info'] = None
+    
+    return jsonify(health_status)
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))

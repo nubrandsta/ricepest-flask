@@ -1,11 +1,6 @@
 import time
 import numpy as np
-from ultralytics import YOLO
-from sahi import AutoDetectionModel
-from sahi.predict import get_sliced_prediction
-from sahi.utils.cv import read_image
 from PIL import Image
-import torch
 
 # Try to import cv2, fallback to PIL if it fails
 try:
@@ -14,6 +9,35 @@ try:
 except ImportError as e:
     print(f"OpenCV not available: {e}. Using PIL fallback.")
     CV2_AVAILABLE = False
+
+# Try to import ultralytics and related packages
+try:
+    from ultralytics import YOLO
+    ULTRALYTICS_AVAILABLE = True
+except ImportError as e:
+    print(f"Ultralytics not available: {e}. YOLO detection will be disabled.")
+    ULTRALYTICS_AVAILABLE = False
+    YOLO = None
+
+try:
+    from sahi import AutoDetectionModel
+    from sahi.predict import get_sliced_prediction
+    from sahi.utils.cv import read_image
+    SAHI_AVAILABLE = True
+except ImportError as e:
+    print(f"SAHI not available: {e}. SAHI detection will be disabled.")
+    SAHI_AVAILABLE = False
+    AutoDetectionModel = None
+    get_sliced_prediction = None
+    read_image = None
+
+try:
+    import torch
+    TORCH_AVAILABLE = True
+except ImportError as e:
+    print(f"PyTorch not available: {e}. GPU acceleration will be disabled.")
+    TORCH_AVAILABLE = False
+    torch = None
 
 def calculate_iou(box1, box2):
     """
@@ -90,6 +114,12 @@ class YOLODetector:
         self.model_path = model_path
         self.model = None
         self.sahi_model = None
+        self.available = ULTRALYTICS_AVAILABLE
+        
+        if not ULTRALYTICS_AVAILABLE:
+            print("Warning: Ultralytics not available. YOLODetector will not function.")
+            return
+            
         self.load_model()
     
     def load_model(self):
@@ -100,16 +130,27 @@ class YOLODetector:
             # Load standard YOLO model
             self.model = YOLO(self.model_path)
             
-            # Initialize SAHI model wrapper
-            self.sahi_model = AutoDetectionModel.from_pretrained(
-                model_type='yolov8',  # SAHI uses yolov8 type for YOLOv11 compatibility
-                model_path=self.model_path,
-                confidence_threshold=0.3,
-                device='cuda' if torch.cuda.is_available() else 'cpu'
-            )
+            # Initialize SAHI model wrapper if SAHI is available
+            if SAHI_AVAILABLE:
+                device = 'cpu'  # Default to CPU
+                if TORCH_AVAILABLE and torch.cuda.is_available():
+                    device = 'cuda'
+                    
+                self.sahi_model = AutoDetectionModel.from_pretrained(
+                    model_type='yolov8',  # SAHI uses yolov8 type for YOLOv11 compatibility
+                    model_path=self.model_path,
+                    confidence_threshold=0.3,
+                    device=device
+                )
+            else:
+                print("Warning: SAHI not available. SAHI detection will be disabled.")
+                self.sahi_model = None
             
             print(f"Model loaded successfully from {self.model_path}")
-            print(f"Using device: {'CUDA' if torch.cuda.is_available() else 'CPU'}")
+            if TORCH_AVAILABLE:
+                print(f"Using device: {'CUDA' if torch.cuda.is_available() else 'CPU'}")
+            else:
+                print("Using device: CPU (PyTorch not available)")
             
         except Exception as e:
             print(f"Error loading model: {e}")
@@ -128,6 +169,21 @@ class YOLODetector:
             dict: Detection results with bounding boxes, confidence scores, and metadata
         """
         start_time = time.time()
+        
+        # Check if detector is available
+        if not self.available or self.model is None:
+            return {
+                'detections': [],
+                'processing_time': time.time() - start_time,
+                'image_size': [0, 0],
+                'method': 'unavailable',
+                'error': 'YOLO detector not available due to missing dependencies'
+            }
+        
+        # Check SAHI availability if requested
+        if use_sahi and not SAHI_AVAILABLE:
+            print("Warning: SAHI requested but not available. Falling back to standard detection.")
+            use_sahi = False
         
         if use_sahi:
             return self._detect_with_sahi(image_path, sahi_config, start_time)
@@ -156,20 +212,30 @@ class YOLODetector:
             boxes = result.boxes
             if boxes is not None:
                 for box in boxes:
-                    # Get bounding box coordinates
-                    x1, y1, x2, y2 = box.xyxy[0].cpu().numpy()
-                    confidence = box.conf[0].cpu().numpy()
-                    class_id = int(box.cls[0].cpu().numpy())
-                    
-                    # Get class name
-                    class_name = self.model.names[class_id]
-                    
-                    detections.append({
-                        'bbox': [float(x1), float(y1), float(x2), float(y2)],
-                        'confidence': float(confidence),
-                        'class': class_name,
-                        'class_id': class_id
-                    })
+                    try:
+                        # Get bounding box coordinates
+                        if TORCH_AVAILABLE:
+                            x1, y1, x2, y2 = box.xyxy[0].cpu().numpy()
+                            confidence = box.conf[0].cpu().numpy()
+                            class_id = int(box.cls[0].cpu().numpy())
+                        else:
+                            # Fallback for when torch is not available
+                            x1, y1, x2, y2 = box.xyxy[0].numpy()
+                            confidence = box.conf[0].numpy()
+                            class_id = int(box.cls[0].numpy())
+                        
+                        # Get class name
+                        class_name = self.model.names[class_id]
+                        
+                        detections.append({
+                            'bbox': [float(x1), float(y1), float(x2), float(y2)],
+                            'confidence': float(confidence),
+                            'class': class_name,
+                            'class_id': class_id
+                        })
+                    except Exception as e:
+                        print(f"Error processing detection box: {e}")
+                        continue
         
         processing_time = time.time() - start_time
         
@@ -184,6 +250,17 @@ class YOLODetector:
         """
         SAHI-based detection with image slicing
         """
+        # Check if SAHI is available
+        if not SAHI_AVAILABLE or self.sahi_model is None:
+            print("Error: SAHI not available for sliced detection")
+            return {
+                'detections': [],
+                'processing_time': time.time() - start_time,
+                'image_size': [0, 0],
+                'method': 'sahi_unavailable',
+                'error': 'SAHI not available for sliced detection'
+            }
+        
         # Default SAHI configuration with more aggressive NMS
         default_config = {
             'slice_height': 640,

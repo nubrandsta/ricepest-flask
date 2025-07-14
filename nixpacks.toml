@@ -1,0 +1,47 @@
+# Nixpacks configuration for ultralytics deployment
+[phases.setup]
+# Install system dependencies required for OpenCV and ultralytics
+aptPkgs = [
+    "libgl1-mesa-glx",
+    "libglib2.0-0", 
+    "libsm6",
+    "libxext6",
+    "libxrender-dev",
+    "libgomp1",
+    "libgtk-3-0",
+    "libgstreamer1.0-0",
+    "libgstreamer-plugins-base1.0-0",
+    "libavcodec58",
+    "libavformat58",
+    "libswscale5",
+    "libfontconfig1",
+    "libcairo2",
+    "libgdk-pixbuf2.0-0",
+    "libpango-1.0-0",
+    "libharfbuzz0b",
+    "libpangocairo-1.0-0",
+    "libatk1.0-0",
+    "libcairo-gobject2",
+    "libjpeg-dev",
+    "libpng-dev",
+    "libtiff-dev",
+    "libwebp-dev",
+    "libopenjp2-7-dev"
+]
+
+[phases.install]
+# Custom install command to handle torch and ultralytics properly
+cmds = [
+    "pip install --upgrade pip setuptools wheel",
+    "pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu",
+    "pip install ultralytics>=8.0.0",
+    "pip install sahi==0.11.14",
+    "pip install -r requirements.txt"
+]
+
+[variables]
+# Environment variables for headless operation
+QT_QPA_PLATFORM = "offscreen"
+DISPLAY = ":99"
+OPENCV_IO_ENABLE_OPENEXR = "1"
+ULTRALYTICS_SETTINGS = '{"runs_dir": "/tmp", "datasets_dir": "/tmp", "weights_dir": "/tmp"}'
