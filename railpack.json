@@ -11,14 +11,8 @@
   "packages": {
     "python": "3.11"
   },
-  "build": {
-    "commands": [
-      "ldconfig",
-      "ln -sf /usr/lib/x86_64-linux-gnu/libGL.so.1 /usr/lib/libGL.so.1 || true"
-    ]
-  },
   "deploy": {
-    "startCommand": "gunicorn --bind 0.0.0.0:$PORT app:app",
+    "startCommand": "ldconfig && ln -sf /usr/lib/x86_64-linux-gnu/libGL.so.1 /usr/lib/libGL.so.1 && gunicorn --bind 0.0.0.0:$PORT app:app",
     "variables": {
       "QT_QPA_PLATFORM": "offscreen",
       "DISPLAY": ":99",
