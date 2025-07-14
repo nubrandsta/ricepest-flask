@@ -10,7 +10,6 @@
     "libglu1-mesa-dev",
     "mesa-common-dev",
     "libglfw3-dev",
-    "libgthread-2.0-dev",
     "libxrender-dev",
     "libavcodec-dev",
     "libavformat-dev",
