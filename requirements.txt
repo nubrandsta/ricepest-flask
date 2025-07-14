@@ -1,13 +1,12 @@
-Flask
+Flask==3.0.0
 Flask-CORS==4.0.0
 ultralytics>=8.0.0
 sahi==0.11.14
 Pillow==10.1.0
 numpy>=1.25.0
 opencv-python-headless==4.8.1.78
---index-url https://download.pytorch.org/whl/cpu
-torch
-torchvision
+torch --index-url https://download.pytorch.org/whl/cpu
+torchvision --index-url https://download.pytorch.org/whl/cpu
 requests==2.31.0
 gunicorn==21.2.0
 setuptools>=65.0.0
