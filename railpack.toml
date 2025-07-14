@@ -11,7 +11,9 @@ system_packages = [
     "libgl1",
     "libglx-mesa0",
     "libgl1-mesa-dri",
+    "libegl1-mesa",
     "libglu1-mesa",
+    "mesa-utils",
     "libglib2.0-0", 
     "libsm6",
     "libxext6",
@@ -43,7 +45,8 @@ system_packages = [
 # Railpack automatically handles Python package dependencies
 commands = [
     "pip install --upgrade pip setuptools wheel",
-    "pip install -r requirements.txt"
+    "pip install -r requirements.txt",
+    "ldconfig"
 ]
 
 [runtime]
