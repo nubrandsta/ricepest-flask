@@ -8,7 +8,10 @@ PYTHON_VERSION = "3.11"
 # System dependencies for OpenCV and ultralytics
 # Railpack automatically handles common Python package dependencies
 system_packages = [
+    "libgl1",
+    "libglx-mesa0",
     "libgl1-mesa-dri",
+    "libglu1-mesa",
     "libglib2.0-0", 
     "libsm6",
     "libxext6",
