@@ -41,9 +41,35 @@ The application includes comprehensive fallback mechanisms:
 - Informative error responses
 - Health check endpoint with dependency status
 
-## Alternative Deployment Options
+## Deployment Options
 
-### Option 1: Railway with Custom Build Commands
+### Option 1: Railway with Railpack (Recommended)
+
+Railpack is a modern build system with superior Python support compared to Nixpacks.
+
+#### Why Railpack?
+- **Automatic Python Detection**: Detects Python projects via requirements.txt, main.py, or pyproject.toml
+- **Built-in Dependency Management**: Automatically installs system dependencies for common packages
+- **Multiple Package Manager Support**: Works with pip, poetry, pdm, uv, and pipenv
+- **Optimized Runtime Variables**: Includes production-ready Python environment settings
+
+#### Configuration Files:
+
+1. **`railpack.toml`** - Modern Railpack configuration (recommended)
+2. **`railway-railpack.toml`** - Railway settings for Railpack builder
+
+### Option 2: Railway with Nixpacks (Legacy)
+
+Nixpacks configuration for compatibility with older deployments.
+
+#### Configuration Files:
+
+1. **`nixpacks.toml`** - Main configuration for full feature deployment
+2. **`railway.toml`** - Railway-specific settings
+3. **`railway-minimal.toml`** - Fallback configuration with minimal dependencies
+4. **`runtime.txt`** - Python version specification
+
+### Option 3: Railway with Custom Build Commands
 
 In your Railway dashboard, you can override the build process:
 
@@ -74,7 +100,7 @@ gunicorn --bind 0.0.0.0:$PORT app:app
 - **FFmpeg**: Changed `libswscale5` → `libswscale-dev`
 - Use `railway-minimal.toml` if you encounter persistent package issues
 
-### Option 2: Docker Deployment
+### Option 4: Docker Deployment
 
 Create a `Dockerfile` for containerized deployment:
 
@@ -117,7 +143,7 @@ EXPOSE 5000
 CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]
 ```
 
-### Option 3: Heroku Deployment
+### Option 5: Heroku Deployment
 
 For Heroku, create these files:
 
@@ -140,7 +166,7 @@ python-3.11.0
 1. `heroku/python`
 2. `heroku-community/apt`
 
-### Option 4: Google Cloud Run
+### Option 6: Google Cloud Run
 
 Use the Docker configuration above with Cloud Run:
 
@@ -157,7 +183,7 @@ gcloud run deploy ricepest-detection \
   --allow-unauthenticated
 ```
 
-### Option 5: AWS Lambda (Serverless)
+### Option 7: AWS Lambda (Serverless)
 
 For serverless deployment, consider using:
 - AWS Lambda with container images
@@ -168,18 +194,36 @@ For serverless deployment, consider using:
 
 ## Troubleshooting
 
-### Common Issues
+### Migration to Railpack (Recommended)
+
+If you're experiencing persistent build issues with Nixpacks, consider migrating to Railpack:
+
+**Benefits of Railpack:** <mcreference link="https://railpack.com/languages/python" index="0">0</mcreference>
+- Automatic Python environment setup with proper pip integration
+- Built-in support for common Python packages (no manual system dependency management)
+- Faster builds with optimized caching
+- Better error messages and debugging information
+
+**Migration Steps:**
+1. Rename your current `railway.toml` to `railway-nixpacks-backup.toml`
+2. Rename `railway-railpack.toml` to `railway.toml`
+3. Deploy using the new Railpack configuration
+4. Remove old Nixpacks files if deployment succeeds
+
+### Common Issues (Nixpacks Legacy)
 
 1. **Package Installation Errors (Ubuntu Noble/24.04)**
    - **Problem**: `libavcodec58`, `libavformat58`, `libswscale5` not available
    - **Solution**: Use development packages instead: `libavcodec-dev`, `libavformat-dev`, `libswscale-dev`
    - **Alternative**: Use `railway-minimal.toml` for basic functionality
+   - **Recommended**: Migrate to Railpack which handles this automatically
 
 2. **Pip Command Not Found**
    - **Problem**: `pip: command not found` during deployment
    - **Solution**: Use `python -m pip` instead of `pip` directly
    - **Reason**: This ensures pip is called through the Python module system
    - **Note**: All configuration files have been updated to use `python -m pip`
+   - **Recommended**: Migrate to Railpack which handles pip automatically
 
 3. **Python/Pip Not Available (Nixpacks)**
    - **Problem**: `python: command not found` or `No module named pip`
