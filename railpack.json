@@ -25,6 +25,12 @@
   },
   "steps": {
     "install": {
+      "inputs": [
+        {
+          "local": true,
+          "include": ["requirements.txt"]
+        }
+      ],
       "commands": [
         "pip install -r requirements.txt"
       ]
