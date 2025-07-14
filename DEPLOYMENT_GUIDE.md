@@ -51,12 +51,12 @@ In your Railway dashboard, you can override the build process:
 
 **Full feature build command:**
 ```bash
-apt-get update && apt-get install -y libgl1-mesa-glx libglib2.0-0 libsm6 libxext6 libxrender-dev libgomp1 libgtk-3-0 libgstreamer1.0-0 libgstreamer-plugins-base1.0-0 libavcodec-dev libavformat-dev libswscale-dev libfontconfig1 libcairo2 libgdk-pixbuf2.0-0 libpango-1.0-0 libharfbuzz0b libpangocairo-1.0-0 libatk1.0-0 libcairo-gobject2 libjpeg-dev libpng-dev libtiff-dev libwebp-dev libopenjp2-7-dev && pip install --upgrade pip setuptools wheel && pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu && pip install ultralytics>=8.0.0 sahi==0.11.14 && pip install -r requirements.txt
+apt-get update && apt-get install -y libgl1-mesa-dri libglib2.0-0 libsm6 libxext6 libxrender-dev libgomp1 libgtk-3-0 libgstreamer1.0-0 libgstreamer-plugins-base1.0-0 libavcodec-dev libavformat-dev libswscale-dev libfontconfig1 libcairo2 libgdk-pixbuf2.0-0 libpango-1.0-0 libharfbuzz0b libpangocairo-1.0-0 libatk1.0-0 libcairo-gobject2 libjpeg-dev libpng-dev libtiff-dev libwebp-dev libopenjp2-7-dev && pip install --upgrade pip setuptools wheel && pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu && pip install ultralytics>=8.0.0 sahi==0.11.14 && pip install -r requirements.txt
 ```
 
 **Minimal build command** (if above fails):
 ```bash
-apt-get update && apt-get install -y libglib2.0-0 libsm6 libxext6 libxrender-dev libgomp1 libfontconfig1 libcairo2 libjpeg-dev libpng-dev && pip install --upgrade pip setuptools wheel && pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu && pip install ultralytics>=8.0.0 sahi==0.11.14 && pip install -r requirements.txt
+apt-get update && apt-get install -y libgl1-mesa-dri libglib2.0-0 libsm6 libxext6 libxrender-dev libgomp1 libfontconfig1 libcairo2 libjpeg-dev libpng-dev && pip install --upgrade pip setuptools wheel && pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu && pip install ultralytics>=8.0.0 sahi==0.11.14 && pip install -r requirements.txt
 ```
 
 **Custom Deploy Command:**
@@ -65,10 +65,11 @@ gunicorn --bind 0.0.0.0:$PORT app:app
 ```
 
 #### Package Compatibility Notes:
-- Ubuntu Noble (24.04) uses different package names for FFmpeg libraries
-- Changed `libavcodec58` → `libavcodec-dev`
-- Changed `libavformat58` → `libavformat-dev` 
-- Changed `libswscale5` → `libswscale-dev`
+- Ubuntu Noble (24.04) uses different package names for system libraries
+- **OpenGL**: Changed `libgl1-mesa-glx` → `libgl1-mesa-dri` (obsolete package)
+- **FFmpeg**: Changed `libavcodec58` → `libavcodec-dev`
+- **FFmpeg**: Changed `libavformat58` → `libavformat-dev` 
+- **FFmpeg**: Changed `libswscale5` → `libswscale-dev`
 - Use `railway-minimal.toml` if you encounter persistent package issues
 
 ### Option 2: Docker Deployment

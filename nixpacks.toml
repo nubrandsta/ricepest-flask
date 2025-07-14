@@ -2,7 +2,7 @@
 [phases.setup]
 # Install system dependencies required for OpenCV and ultralytics
 aptPkgs = [
-    "libgl1-mesa-glx",
+    "libgl1-mesa-dri",
     "libglib2.0-0", 
     "libsm6",
     "libxext6",
