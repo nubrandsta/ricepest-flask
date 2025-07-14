@@ -1,5 +1,4 @@
 import time
-import cv2
 import numpy as np
 from ultralytics import YOLO
 from sahi import AutoDetectionModel
@@ -7,6 +6,14 @@ from sahi.predict import get_sliced_prediction
 from sahi.utils.cv import read_image
 from PIL import Image
 import torch
+
+# Try to import cv2, fallback to PIL if it fails
+try:
+    import cv2
+    CV2_AVAILABLE = True
+except ImportError as e:
+    print(f"OpenCV not available: {e}. Using PIL fallback.")
+    CV2_AVAILABLE = False
 
 def calculate_iou(box1, box2):
     """
@@ -131,11 +138,16 @@ class YOLODetector:
         """
         Standard YOLOv11 detection without slicing
         """
-        # Load image
-        image = cv2.imread(image_path)
-        image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        # Load image - use PIL fallback if OpenCV not available
+        if CV2_AVAILABLE:
+            image = cv2.imread(image_path)
+            image_size = [image.shape[1], image.shape[0]]
+        else:
+            # Use PIL as fallback
+            pil_image = Image.open(image_path)
+            image_size = [pil_image.width, pil_image.height]
         
-        # Run inference
+        # Run inference (YOLO can handle the image path directly)
         results = self.model(image_path, conf=0.3)
         
         # Process results
@@ -164,7 +176,7 @@ class YOLODetector:
         return {
             'detections': detections,
             'processing_time': processing_time,
-            'image_size': [image.shape[1], image.shape[0]],
+            'image_size': image_size,
             'method': 'standard'
         }
     
